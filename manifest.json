@@ -21,7 +21,11 @@
   },
   "environment": {
     "extras": [
-      "colorStyles"
+      "colorStyles",
+      "/roll.css",
+      "/roll.js",
+      "/nouislider.min.css",
+      "/nouislider.min.js"
     ]
   }
 }
