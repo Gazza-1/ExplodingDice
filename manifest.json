@@ -1,0 +1,27 @@
+{
+  "manifestVersion": 1,
+  "name": "Exploding Dice",
+  "summary": "A Symbiote to roll exploding dice",
+  "kind": "webView",
+  "entryPoint": "/roll.html",
+  "about": {
+    "authors": ["Gazza"]
+  },
+  "api": {
+    "version": "0.1",
+    "initTimeout": 10,
+    "subscriptions": {
+      "dice": {
+        "onRollResults": "handleRollResult"
+      },
+      "symbiote": {
+        "onStateChangeEvent": "onStateChangeEvent"
+      }
+    }
+  },
+  "environment": {
+    "extras": [
+      "colorStyles"
+    ]
+  }
+}
