@@ -4,12 +4,33 @@ let diceToExplode = {};
 let finalResult = 0;
 let isGM = false;
 let me;
+let explodeOn = {
+    "4": {
+        'min': 1,
+        'max': 4
+    },
+    "8": {
+        'min': 1,
+        'max': 8
+    },
+    "10": {
+        'min': 1,
+        'max': 10
+    },
+    "20": {
+        'min': 1,
+        'max': 20
+    },
+    "100": {
+        'min': 1,
+        'max': 100
+    }
+};
 
 function roll(input)
 {
     let name = document.getElementById("roll-name").value || "Exploding Dice";
     let dice = input || document.getElementById("roll-content").value || "1d20";
-    //console.log(`submitting talespire://dice/${name}:${dice}/${name}:${dice}`);
     TS.dice.putDiceInTray([{name: name, roll: dice}], true).then((diceSetResponse) => {
         console.log("putDiceInTray rollId response:", diceSetResponse);
         trackedIds[diceSetResponse] = 1;
@@ -77,13 +98,15 @@ function handleOperation(operator, diceSet) {
 		//skip
 	}
 	else if (diceSet.operands === undefined) {
-		let max = parseInt(diceSet.kind.substring(1));
+		let diceName = diceSet.kind.substring(1);
+        let min = parseInt(document.getElementById("slider-" + diceName + "-min-amount").innerText);
+        let max = parseInt(document.getElementById("slider-" + diceName + "-max-amount").innerText);
 		for (let result of diceSet.results) {
-			if (result === max) {
-				if (diceToExplode[max] === undefined) {
-					diceToExplode[max] = {"+": 0, "-": 0};
+			if (result >= min && result <= max) {
+				if (diceToExplode[diceName] === undefined) {
+					diceToExplode[diceName] = {"+": 0, "-": 0};
 				}
-				diceToExplode[max][operator || "+"]++;
+				diceToExplode[diceName][operator || "+"]++;
 			}
 		}
 		if (Object.keys(resultGroup).length > 0) {
@@ -111,7 +134,7 @@ function addToSavedResultGroup(addOp, addKind, addResults, resOp, resResult) {
 }
 
 function onStateChangeEvent (msg) {
-    if (msg.kind === "haveInitialized") {
+    if (msg.kind === "hasInitialized") {
         TS.clients.whoAmI().then((me) => {
             TS.clients.getMoreInfo([me.id]).then((info) => {
                 if (info[0].clientMode == "gm")
@@ -131,6 +154,36 @@ function onStateChangeEvent (msg) {
         }).catch((response) => {
             console.log("error in fetching own client info", response);
         });
+        var explodeOnEl = document.getElementById("roll-explode-on");
+        for (let [diceName, options] of Object.entries(explodeOn)) {
+            var elToAdd = document.createElement("span");
+            elToAdd.id = "slider-" + diceName;
+            explodeOnEl.appendChild(elToAdd);
+            noUiSlider.create(elToAdd, {
+                start: [options.max, options.max],
+                connect: true,
+                range: options,
+                step: 1
+            });
+            var diceEl = document.createElement("span");
+            diceEl.className = "diceName";
+            elToAdd.appendChild(diceEl);
+            diceEl.innerText = "D" + diceName;
+            var minEl = document.createElement("div");
+            minEl.id = "slider-" + diceName + "-min";
+            minEl.className = "amountLabel";
+            elToAdd.appendChild(minEl);            
+            minEl.innerHTML = "Min: <span id='slider-" + diceName + "-min-amount'>" + options.max + "</span>";
+            var maxEl = document.createElement("div");
+            maxEl.id = "slider-" + diceName + "-max";
+            maxEl.className = "amountLabel";
+            maxEl.innerHTML = "Max: <span id='slider-" + diceName + "-max-amount'>" + options.max + "</span>";
+            elToAdd.appendChild(maxEl);
+            elToAdd.noUiSlider.on('update', function (values, handle) {
+                document.getElementById("slider-" + diceName + "-min-amount").innerText = parseInt(values[0]);
+                document.getElementById("slider-" + diceName + "-max-amount").innerText = parseInt(values[1]);
+            });
+        }
     }
 }
 

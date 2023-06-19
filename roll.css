@@ -29,8 +29,27 @@ h1 {
     text-align: right;
     flex-shrink: 0;
     font-size: 1.2em;
-    width: 3em;
+    width: 6em;
     color: var(--ts-color-secondary);
+}
+
+.noUi-target {
+    float: left;
+    width: 100px;
+    margin: 0px 0px 40px 40px;
+}
+
+.noUi-base {
+    margin-bottom: 5px;
+}
+
+.diceName {
+    float: left;
+    margin: 5px;
+}
+
+.amountLabel {
+    font-size: 9pt;
 }
 
 .spacer {
