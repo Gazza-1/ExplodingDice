@@ -9,6 +9,10 @@ let explodeOn = {
         'min': 1,
         'max': 4
     },
+    "6": {
+        'min': 1,
+        'max': 6
+    },
     "8": {
         'min': 1,
         'max': 8
@@ -16,6 +20,10 @@ let explodeOn = {
     "10": {
         'min': 1,
         'max': 10
+    },
+    "12": {
+        'min': 1,
+        'max': 12
     },
     "20": {
         'min': 1,
