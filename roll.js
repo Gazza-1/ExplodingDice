@@ -37,12 +37,26 @@ let explodeOn = {
 
 function roll(input)
 {
-    let name = document.getElementById("roll-name").value || "Exploding Dice";
-    let dice = input || document.getElementById("roll-content").value || "1d20";
-    TS.dice.putDiceInTray([{name: name, roll: dice}], true).then((diceSetResponse) => {
-        console.log("putDiceInTray rollId response:", diceSetResponse);
-        trackedIds[diceSetResponse] = 1;
-    });
+    var doRoll = true,
+        error = "";
+    for (let [diceName, options] of Object.entries(explodeOn)) {
+        var slider = document.getElementById("slider-" + diceName).noUiSlider.get();
+        if (parseInt(slider[0]) === options.min && parseInt(slider[1]) === options.max) {
+            doRoll = false;
+            error += error.length === 0 ? "Unable to roll; please change the min or max for:</br></br>D" + diceName : "</br>D" + diceName;
+        }
+    }
+    if (doRoll) {
+        document.getElementById("roll-result").textContent = "";
+        let name = document.getElementById("roll-name").value || "Exploding Dice";
+        let dice = input || document.getElementById("roll-content").value || "1d20";
+        TS.dice.putDiceInTray([{name: name, roll: dice}], true).then((diceSetResponse) => {
+            console.log("putDiceInTray rollId response:", diceSetResponse);
+            trackedIds[diceSetResponse] = 1;
+        });
+    } else {
+        document.getElementById("roll-result").innerHTML = error;
+    }
 }
 
 async function handleRollResult(rollEvent)
@@ -143,25 +157,6 @@ function addToSavedResultGroup(addOp, addKind, addResults, resOp, resResult) {
 
 function onStateChangeEvent (msg) {
     if (msg.kind === "hasInitialized") {
-        TS.clients.whoAmI().then((me) => {
-            TS.clients.getMoreInfo([me.id]).then((info) => {
-                if (info[0].clientMode == "gm")
-                {
-                    document.getElementById("roll-result-container").classList.add("hidden");
-                    isGM = true;
-                }
-                else
-                {
-                    document.getElementById("roll-result-container").classList.remove("hidden");
-                    isGM = false;
-                }
-            }).catch((info) => {
-                console.log("error in fetching client info", info);
-            });
-
-        }).catch((response) => {
-            console.log("error in fetching own client info", response);
-        });
         var explodeOnEl = document.getElementById("roll-explode-on");
         for (let [diceName, options] of Object.entries(explodeOn)) {
             var elToAdd = document.createElement("span");
